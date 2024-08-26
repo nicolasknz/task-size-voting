@@ -1,3 +1,5 @@
+"use client";
+
 const ESTIMATIVES = ["PP", "P", "M", "G", "GG"];
 
 const EstimativeSelector = ({ setEstimative, estimative }) => {

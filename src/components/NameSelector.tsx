@@ -1,3 +1,5 @@
+"use client";
+
 const NameSelector = ({ setName, name }) => {
   return (
     <input

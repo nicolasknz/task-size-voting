@@ -10,7 +10,9 @@ const EstimativeSelector = ({ setEstimative, estimative }) => {
       onChange={(e) => setEstimative(e.target.value)}
     >
       {ESTIMATIVES.map((e) => (
-        <option value={e}>{e}</option>
+        <option key={e} value={e}>
+          {e}
+        </option>
       ))}
     </select>
   );

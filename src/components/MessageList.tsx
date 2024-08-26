@@ -1,74 +1,63 @@
-import { pusherClient } from "@/libs/pusher/client";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { Button } from "./ui/button";
+import { Message } from "@/app/page";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
-interface Message {
-  message: string;
-  user: string;
-  date: string;
-}
-
+const ESTIMATIVES = ["PP", "P", "M", "G", "GG"];
 interface MessageListProps {
-  name: string;
-  estimative: string;
+  messages: Message[];
+  showResults: boolean;
 }
 
-const CHANNEL = "estimatives";
-const EVENT = "event";
+export default function MessageList({
+  messages,
+  showResults,
+}: MessageListProps) {
+  console.log(messages, "clg2");
+  const handledList = useMemo(() => {
+    const handledEstimatives = ESTIMATIVES.map((estimative) => {
+      const filteredMessages = messages.filter(
+        (message) => message.message === estimative
+      );
 
-export default function MessageList({ name, estimative }: MessageListProps) {
-  const [messages, setMessages] = useState<Message[]>([]);
-  console.log(messages, "clg1");
+      if (filteredMessages.length === 0) return null;
 
-  useEffect(() => {
-    const channel = pusherClient
-      .subscribe(CHANNEL)
-      .bind(EVENT, (data: Message) => {
-        console.log("test", data);
-        setMessages((prevMessages) => [...prevMessages, data]);
-      });
+      const handledEstimatives = {
+        count: filteredMessages.length,
+        estimative: estimative,
+      };
 
-    return () => {
-      channel.unbind();
-    };
-  }, []);
-
-  const handleTestClick = async () => {
-    let data = await fetch("/api/pusher/trigger", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ message: estimative, user: name }),
+      return handledEstimatives;
     });
 
-    let json = await data.json();
+    return handledEstimatives.filter((item) => item);
+  }, [messages]);
 
-    console.log(json, "clg1");
-  };
+  console.log(handledList, "clg3");
 
   return (
     <div className="flex flex-col">
-      <button
-        className="w-[240px] bg-slate-600 hover:bg-slate-500 rounded p-2 m-2"
-        onClick={handleTestClick}
-      >
-        Test
-      </button>
-      <div className="mt-4">
-        {messages.map((msg, index) => (
-          <div key={index} className="border p-2 mb-2">
-            <div>
-              <strong>User:</strong> {msg.user}
-            </div>
-            <div>
-              <strong>Date:</strong> {msg.date}
-            </div>
-            <div>
-              <strong>Message:</strong> {msg.message}
-            </div>
-          </div>
-        ))}
-      </div>
+      <div>Respostas: {messages.length}</div>
+
+      {showResults && (
+        <div className="mt-4">
+          {handledList.map((item, index) => (
+            <Card key={item?.estimative} className="mt-2">
+              <CardHeader>
+                <CardTitle>Tamanho: {item?.estimative}</CardTitle>
+              </CardHeader>
+              <CardContent>Votos: {item?.count}</CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

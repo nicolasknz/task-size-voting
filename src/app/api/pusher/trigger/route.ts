@@ -9,7 +9,23 @@ const EVENT = "event";
 export async function POST(req: Request) {
   try {
     // Parse the request body to get the message and user parameters
-    const { message, user } = await req.json();
+    const { message, user, type } = await req.json();
+
+    if (type === "clear") {
+      await pusherServer.trigger(CHANNEL, EVENT, {
+        type: "clear",
+      });
+
+      return NextResponse.json({ message: "Sockets tested" }, { status: 200 });
+    }
+
+    if (type === "show") {
+      await pusherServer.trigger(CHANNEL, EVENT, {
+        type: "show",
+      });
+
+      return NextResponse.json({ message: "Sockets tested" }, { status: 200 });
+    }
 
     // Validate the input
     if (typeof message !== "string" || typeof user !== "string") {

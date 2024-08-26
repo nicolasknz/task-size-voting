@@ -1,6 +1,11 @@
 "use client";
 
-const NameSelector = ({ setName, name }) => {
+interface NameSelectorProps {
+  setName: (name: string) => void;
+  name: string;
+}
+
+const NameSelector = ({ setName, name }: NameSelectorProps) => {
   return (
     <input
       className="text text-black"

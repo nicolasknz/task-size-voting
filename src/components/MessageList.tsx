@@ -7,7 +7,10 @@ interface Message {
   date: string;
 }
 
-interface MessageListProps {}
+interface MessageListProps {
+  name: string;
+  estimative: string;
+}
 
 const CHANNEL = "estimatives";
 const EVENT = "event";

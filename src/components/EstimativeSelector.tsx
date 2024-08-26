@@ -2,7 +2,15 @@
 
 const ESTIMATIVES = ["PP", "P", "M", "G", "GG"];
 
-const EstimativeSelector = ({ setEstimative, estimative }) => {
+interface EstimativeSelectorProps {
+  estimative: string;
+  setEstimative: (value: string) => void;
+}
+
+const EstimativeSelector = ({
+  setEstimative,
+  estimative,
+}: EstimativeSelectorProps) => {
   return (
     <select
       className="text text-black"

@@ -8,11 +8,10 @@ import EstimativeSelector from "@/components/EstimativeSelector";
 
 const Page = () => {
   const [name, setName] = useState("");
-  const [estimative, setEstimative] = useState(null);
+  const [estimative, setEstimative] = useState("");
 
   console.log(estimative);
 
-  console.log(name);
   return (
     <>
       <NameSelector setName={setName} name={name} />

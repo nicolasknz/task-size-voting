@@ -42,9 +42,7 @@ const NameSelector = ({ setUser, user }: NameSelectorProps) => {
 
   return user ? null : (
     <Card className="w-full flex flex-col">
-      <CardHeader>
-        <CardTitle>Identificação</CardTitle>
-      </CardHeader>
+      <CardHeader></CardHeader>
       <CardContent>
         <Input
           className=""

@@ -15,6 +15,7 @@ export interface Message {
   type: "estimative" | "clear" | "show";
   message: string;
   date: string;
+  user: User;
 }
 
 const Page = () => {
@@ -91,7 +92,7 @@ const Page = () => {
         <NameSelector setUser={setUser} user={user} />
       </div>
       {user && (
-        <div className="flex flex-col items-center justify-center ">
+        <div className="flex flex-col items-center justify-center w-56">
           <div className="mt-10 w-full">
             <EstimativeSelector
               hasSentEstimative={hasSentEstimative}
@@ -102,7 +103,7 @@ const Page = () => {
             />
           </div>
 
-          <div className="mt-10">
+          <div className="mt-10 w-full">
             <MessageList messages={messages} showResults={showResults} />
           </div>
 

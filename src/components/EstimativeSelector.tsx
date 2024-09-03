@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/select";
 import { Button } from "./ui/button";
 import { User } from "./NameSelector";
+import { useToast } from "@/hooks/use-toast";
 
 export const ESTIMATIVES = ["PP", "P", "M", "G", "GG"];
 
@@ -26,6 +27,7 @@ const EstimativeSelector = ({
   hasSentEstimative,
   user,
 }: EstimativeSelectorProps) => {
+  const { toast } = useToast();
   const handleTestClick = async () => {
     if (!estimative) return;
 
@@ -39,6 +41,11 @@ const EstimativeSelector = ({
 
     // let json = await data.json();
     setHasSentEstimative(true);
+
+    toast({
+      title: "Sucesso!",
+      description: "Estimativa enviada!",
+    });
   };
 
   return (
@@ -62,7 +69,7 @@ const EstimativeSelector = ({
           onClick={handleTestClick}
           disabled={hasSentEstimative}
         >
-          Enviar
+          {hasSentEstimative ? "Enviado" : "Enviar"}
         </Button>
       </div>
     </div>

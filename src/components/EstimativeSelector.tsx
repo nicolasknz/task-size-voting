@@ -7,6 +7,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "./ui/button";
+import { User } from "./NameSelector";
+import { useToast } from "@/hooks/use-toast";
 
 export const ESTIMATIVES = ["PP", "P", "M", "G", "GG"];
 
@@ -15,6 +17,7 @@ interface EstimativeSelectorProps {
   setEstimative: (value: string) => void;
   setHasSentEstimative: (value: boolean) => void;
   hasSentEstimative: boolean;
+  user: User;
 }
 
 const EstimativeSelector = ({
@@ -22,7 +25,9 @@ const EstimativeSelector = ({
   estimative,
   setHasSentEstimative,
   hasSentEstimative,
+  user,
 }: EstimativeSelectorProps) => {
+  const { toast } = useToast();
   const handleTestClick = async () => {
     if (!estimative) return;
 
@@ -31,16 +36,21 @@ const EstimativeSelector = ({
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ message: estimative, user: name }),
+      body: JSON.stringify({ message: estimative, user: user }),
     });
 
     // let json = await data.json();
     setHasSentEstimative(true);
+
+    toast({
+      title: "Sucesso!",
+      description: "Estimativa enviada!",
+    });
   };
 
   return (
-    <div className="flex flex-col items-center">
-      <div className="flex flex-col w-2/4 ">
+    <div className="flex flex-col items-center w-full">
+      <div className="flex flex-col">
         <Select value={estimative} onValueChange={(e) => setEstimative(e)}>
           <SelectTrigger className="">
             <SelectValue placeholder="Estimativa" />
@@ -59,7 +69,7 @@ const EstimativeSelector = ({
           onClick={handleTestClick}
           disabled={hasSentEstimative}
         >
-          Enviar
+          {hasSentEstimative ? "Enviado" : "Enviar"}
         </Button>
       </div>
     </div>

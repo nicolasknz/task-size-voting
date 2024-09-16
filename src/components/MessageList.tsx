@@ -29,9 +29,12 @@ export default function MessageList({
 
       if (filteredMessages.length === 0) return null;
 
+      const usersPerEstimative = filteredMessages.map((m) => m.user);
+
       const handledEstimatives = {
         count: filteredMessages.length,
         estimative: estimative,
+        users: usersPerEstimative,
       };
 
       return handledEstimatives;
@@ -43,17 +46,28 @@ export default function MessageList({
   console.log(handledList, "clg3");
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col items-center justify-center">
       <div>Respostas: {messages.length}</div>
 
       {showResults && (
         <div className="mt-4">
-          {handledList.map((item, index) => (
+          {handledList.map((item) => (
             <Card key={item?.estimative} className="mt-2">
               <CardHeader>
-                <CardTitle>Tamanho: {item?.estimative}</CardTitle>
+                <CardTitle>
+                  {item?.estimative} - {item?.count} Votos
+                </CardTitle>
               </CardHeader>
-              <CardContent>Votos: {item?.count}</CardContent>
+              <CardContent>
+                {/* <div>Votos: {item?.count}</div> */}
+                <div className="mt-2">
+                  <ul className="mt-2">
+                    {item?.users.map((user) => (
+                      <li key={user.id}>{user.name}</li>
+                    ))}
+                  </ul>
+                </div>
+              </CardContent>
             </Card>
           ))}
         </div>

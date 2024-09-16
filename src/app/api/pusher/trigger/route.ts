@@ -28,7 +28,7 @@ export async function POST(req: Request) {
     }
 
     // Validate the input
-    if (typeof message !== "string" || typeof user !== "string") {
+    if (typeof message !== "string" || typeof user !== "object") {
       return NextResponse.json({ message: "Invalid input" }, { status: 400 });
     }
 

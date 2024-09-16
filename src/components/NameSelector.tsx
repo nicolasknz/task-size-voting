@@ -1,20 +1,41 @@
 "use client";
 
+import { useId, useState } from "react";
 import { Input } from "./ui/input";
+import { Button } from "./ui/button";
+import { useToast } from "@/hooks/use-toast";
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 
-interface NameSelectorProps {
-  setName: (name: string) => void;
-  name: string;
+export interface User {
+  id?: string;
+  name?: string;
 }
 
-const NameSelector = ({ setName, name }: NameSelectorProps) => {
-  return (
-    <Input
-      className=""
-      value={name}
-      onChange={(e) => setName(e.target.value)}
-      placeholder="Seu nome"
-    />
+interface NameSelectorProps {
+  setUser: (name: User) => void;
+  user?: User;
+  submitUser: (name: string) => void;
+}
+
+const NameSelector = ({ setUser, user, submitUser }: NameSelectorProps) => {
+  const [inputValue, setInputValue] = useState("");
+
+  return user ? null : (
+    <Card className="w-full flex flex-col">
+      <CardHeader></CardHeader>
+      <CardContent>
+        <Input
+          className=""
+          value={inputValue}
+          onChange={(e) => setInputValue(e.target.value)}
+          placeholder="Seu nome"
+        />
+
+        <Button className="mt-10 w-full" onClick={() => submitUser(inputValue)}>
+          Entrar
+        </Button>
+      </CardContent>
+    </Card>
   );
 };
 

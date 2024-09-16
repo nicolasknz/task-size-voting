@@ -9,34 +9,35 @@ import {
 import { Button } from "./ui/button";
 import { User } from "./NameSelector";
 import { useToast } from "@/hooks/use-toast";
+import { Estimative } from "@/app/page";
 
 export const ESTIMATIVES = ["PP", "P", "M", "G", "GG"];
 
 interface EstimativeSelectorProps {
-  estimative: string;
-  setEstimative: (value: string) => void;
+  estimativeValue: string;
+  setEstimativeValue: (value: string) => void;
   setHasSentEstimative: (value: boolean) => void;
   hasSentEstimative: boolean;
   user: User;
 }
 
 const EstimativeSelector = ({
-  setEstimative,
-  estimative,
+  setEstimativeValue,
+  estimativeValue,
   setHasSentEstimative,
   hasSentEstimative,
   user,
 }: EstimativeSelectorProps) => {
   const { toast } = useToast();
   const handleTestClick = async () => {
-    if (!estimative) return;
+    if (!estimativeValue) return;
 
     let data = await fetch("/api/pusher/trigger", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ message: estimative, user: user }),
+      body: JSON.stringify({ message: estimativeValue, user: user }),
     });
 
     // let json = await data.json();
@@ -51,7 +52,10 @@ const EstimativeSelector = ({
   return (
     <div className="flex flex-col items-center w-full">
       <div className="flex flex-col">
-        <Select value={estimative} onValueChange={(e) => setEstimative(e)}>
+        <Select
+          value={estimativeValue}
+          onValueChange={(e) => setEstimativeValue(e)}
+        >
           <SelectTrigger className="">
             <SelectValue placeholder="Estimativa" />
           </SelectTrigger>

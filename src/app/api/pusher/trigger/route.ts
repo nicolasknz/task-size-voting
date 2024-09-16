@@ -9,7 +9,7 @@ const EVENT = "event";
 export async function POST(req: Request) {
   try {
     // Parse the request body to get the message and user parameters
-    const { message, user, type } = await req.json();
+    const { message, user, type, messages } = await req.json();
 
     if (type === "clear") {
       await pusherServer.trigger(CHANNEL, EVENT, {
@@ -27,8 +27,23 @@ export async function POST(req: Request) {
       return NextResponse.json({ message: "Sockets tested" }, { status: 200 });
     }
 
-    // Validate the input
+    if (type === "sync") {
+      await pusherServer.trigger(CHANNEL, EVENT, {
+        type: "sync",
+      });
+
+      return NextResponse.json({ message: "Sockets tested" }, { status: 200 });
+    }
+
+    if (type === "syncSend") {
+      await pusherServer.trigger(CHANNEL, EVENT, {
+        type: "syncSend",
+        messages: messages,
+      });
+    }
+
     if (typeof message !== "string" || typeof user !== "object") {
+      // Validate the input
       return NextResponse.json({ message: "Invalid input" }, { status: 400 });
     }
 

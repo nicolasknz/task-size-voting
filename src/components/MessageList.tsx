@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "./ui/button";
-import { Message } from "@/app/page";
+import { Estimative, Message } from "@/app/page";
 import {
   Card,
   CardContent,
@@ -12,24 +12,24 @@ import {
 
 const ESTIMATIVES = ["PP", "P", "M", "G", "GG"];
 interface MessageListProps {
-  messages: Message[];
+  estimatives: Estimative[];
   showResults: boolean;
 }
 
 export default function MessageList({
-  messages,
+  estimatives,
   showResults,
 }: MessageListProps) {
-  console.log(messages, "clg2");
+  console.log(estimatives, "clg2");
   const handledList = useMemo(() => {
     const handledEstimatives = ESTIMATIVES.map((estimative) => {
-      const filteredMessages = messages.filter(
-        (message) => message.message === estimative
+      const filteredMessages = estimatives.filter(
+        (message) => message.value === estimative
       );
 
       if (filteredMessages.length === 0) return null;
 
-      const usersPerEstimative = messages.map((m) => m.user);
+      const usersPerEstimative = filteredMessages.map((m) => m.user);
 
       const handledEstimatives = {
         count: filteredMessages.length,
@@ -41,20 +41,20 @@ export default function MessageList({
     });
 
     return handledEstimatives.filter((item) => item);
-  }, [messages]);
-
-  console.log(handledList, "clg3");
+  }, [estimatives]);
 
   return (
     <div className="flex flex-col items-center justify-center">
-      <div>Respostas: {messages.length}</div>
+      <div>Respostas: {estimatives.length}</div>
 
       {showResults && (
         <div className="mt-4">
           {handledList.map((item) => (
             <Card key={item?.estimative} className="mt-2">
               <CardHeader>
-                <CardTitle>{item?.estimative} - 2 Votos</CardTitle>
+                <CardTitle>
+                  {item?.estimative} - {item?.count} Voto(s)
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 {/* <div>Votos: {item?.count}</div> */}

@@ -14,31 +14,11 @@ export interface User {
 interface NameSelectorProps {
   setUser: (name: User) => void;
   user?: User;
+  submitUser: (name: string) => void;
 }
 
-const NameSelector = ({ setUser, user }: NameSelectorProps) => {
+const NameSelector = ({ setUser, user, submitUser }: NameSelectorProps) => {
   const [inputValue, setInputValue] = useState("");
-  const id = useId();
-  const { toast } = useToast();
-
-  const submitUser = () => {
-    if (inputValue.length === 0) {
-      toast({
-        title: "Erro",
-        description: "Escreva seu nome!",
-        variant: "destructive",
-      });
-
-      return;
-    }
-    toast({
-      title: "Sucesso!",
-      description: `Seja bem-vindo ${inputValue}`,
-      variant: "default",
-    });
-
-    setUser({ id, name: inputValue });
-  };
 
   return user ? null : (
     <Card className="w-full flex flex-col">
@@ -51,7 +31,7 @@ const NameSelector = ({ setUser, user }: NameSelectorProps) => {
           placeholder="Seu nome"
         />
 
-        <Button className="mt-10 w-full" onClick={submitUser}>
+        <Button className="mt-10 w-full" onClick={() => submitUser(inputValue)}>
           Entrar
         </Button>
       </CardContent>

@@ -29,7 +29,7 @@ export default function MessageList({
 
       if (filteredMessages.length === 0) return null;
 
-      const usersPerEstimative = messages.map((m) => m.user);
+      const usersPerEstimative = filteredMessages.map((m) => m.user);
 
       const handledEstimatives = {
         count: filteredMessages.length,
@@ -54,7 +54,9 @@ export default function MessageList({
           {handledList.map((item) => (
             <Card key={item?.estimative} className="mt-2">
               <CardHeader>
-                <CardTitle>{item?.estimative} - 2 Votos</CardTitle>
+                <CardTitle>
+                  {item?.estimative} - {item?.count} Votos
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 {/* <div>Votos: {item?.count}</div> */}

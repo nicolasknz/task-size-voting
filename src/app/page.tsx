@@ -7,6 +7,7 @@ import MessageList from "@/components/MessageList";
 import NameSelector, { User } from "@/components/NameSelector";
 import EstimativeSelector from "@/components/EstimativeSelector";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
 
 const CHANNEL = "estimatives";
 const EVENT = "event";
@@ -24,6 +25,8 @@ const Page = () => {
   const [hasSentEstimative, setHasSentEstimative] = useState(false);
   const [showResults, setShowResults] = useState(false);
   const [user, setUser] = useState<User>();
+  const id = useId();
+  const { toast } = useToast();
 
   console.log(estimative);
 
@@ -86,10 +89,44 @@ const Page = () => {
     console.log(json, "clg1");
   };
 
+  useEffect(() => {
+    (function getNameLocalStorage() {
+      const name = localStorage.getItem("name");
+
+      if (name) {
+        setUser({ id, name });
+        showWelcomeToast(name);
+      }
+    })();
+  }, []);
+
+  const submitUser = (name: string) => {
+    if (name.length === 0) {
+      toast({
+        title: "Erro",
+        description: "Escreva seu nome!",
+        variant: "destructive",
+      });
+
+      return;
+    }
+    setUser({ id, name: name });
+    localStorage.setItem("name", name);
+    showWelcomeToast(name);
+  };
+
+  const showWelcomeToast = (name: string = "aa") => {
+    toast({
+      title: "Sucesso!",
+      description: `Seja bem-vindo(a) ${name}`,
+      variant: "default",
+    });
+  };
+
   return (
     <div className="flex flex-col items-center w-full justify-center">
       <div className="mt-10 w-2/3 md:w-1/3">
-        <NameSelector setUser={setUser} user={user} />
+        <NameSelector setUser={setUser} user={user} submitUser={submitUser} />
       </div>
       {user && (
         <div className="flex flex-col items-center justify-center w-56">

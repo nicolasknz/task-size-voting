@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useId, useState } from "react";
+import React, { useCallback, useEffect, useId, useState } from "react";
 import { pusherClient } from "@/libs/pusher/client";
 
 import MessageList from "@/components/MessageList";
@@ -8,6 +8,8 @@ import NameSelector, { User } from "@/components/NameSelector";
 import EstimativeSelector from "@/components/EstimativeSelector";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { ModeToggle } from "@/components/ToggleTheme";
+import { RefreshCw, SendHorizontal } from "lucide-react";
 
 const CHANNEL = "estimatives";
 const EVENT = "event";
@@ -25,17 +27,26 @@ const Page = () => {
   const [hasSentEstimative, setHasSentEstimative] = useState(false);
   const [showResults, setShowResults] = useState(false);
   const [user, setUser] = useState<User>();
+  const [isShowingResults, setIsShowingResults] = useState(false);
+  const [isClearing, setIsClearing] = useState(false);
   const id = useId();
   const { toast } = useToast();
 
-  console.log(estimative);
+  const showWelcomeToast = useCallback(
+    (name: string) => {
+      toast({
+        title: "Sucesso!",
+        description: `Seja bem-vindo(a) ${name}`,
+        variant: "default",
+      });
+    },
+    [toast]
+  );
 
   useEffect(() => {
     const channel = pusherClient
       .subscribe(CHANNEL)
       .bind(EVENT, (data: Message) => {
-        console.log("test", data);
-
         if (data.type === "clear") {
           setMessages([]);
           setEstimative("");
@@ -61,44 +72,62 @@ const Page = () => {
 
   const handleShowResults = async () => {
     if (messages.length === 0 || !messages) return;
+    setIsShowingResults(true);
+    try {
+      const data = await fetch("/api/pusher/trigger", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ type: "show" }),
+      });
 
-    let data = await fetch("/api/pusher/trigger", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ type: "show" }),
-    });
-
-    let json = await data.json();
-
-    console.log(json, "clg1");
+      if (!data.ok) {
+        throw new Error("Erro ao mostrar resultados");
+      }
+    } catch {
+      toast({
+        title: "Erro",
+        description: "Nao foi possivel mostrar os resultados.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsShowingResults(false);
+    }
   };
 
   const handleClear = async () => {
-    let data = await fetch("/api/pusher/trigger", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ type: "clear" }),
-    });
+    setIsClearing(true);
+    try {
+      const data = await fetch("/api/pusher/trigger", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ type: "clear" }),
+      });
 
-    let json = await data.json();
-
-    console.log(json, "clg1");
+      if (!data.ok) {
+        throw new Error("Erro ao limpar");
+      }
+    } catch {
+      toast({
+        title: "Erro",
+        description: "Nao foi possivel limpar a sessao.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsClearing(false);
+    }
   };
 
   useEffect(() => {
-    (function getNameLocalStorage() {
-      const name = localStorage.getItem("name");
+    const name = localStorage.getItem("name");
+    if (!name) return;
 
-      if (name) {
-        setUser({ id, name });
-        showWelcomeToast(name);
-      }
-    })();
-  }, []);
+    setUser({ id, name });
+    showWelcomeToast(name);
+  }, [id, showWelcomeToast]);
 
   const submitUser = (name: string) => {
     if (name.length === 0) {
@@ -115,54 +144,59 @@ const Page = () => {
     showWelcomeToast(name);
   };
 
-  const showWelcomeToast = (name: string = "aa") => {
-    toast({
-      title: "Sucesso!",
-      description: `Seja bem-vindo(a) ${name}`,
-      variant: "default",
-    });
-  };
-
   return (
-    <div className="flex flex-col items-center w-full justify-center">
-      <div className="mt-10 w-2/3 md:w-1/3">
-        <NameSelector setUser={setUser} user={user} submitUser={submitUser} />
-      </div>
-      {user && (
-        <div className="flex flex-col items-center justify-center w-56">
-          <div className="mt-10 w-full">
-            <EstimativeSelector
-              hasSentEstimative={hasSentEstimative}
-              setEstimative={setEstimative}
-              estimative={estimative}
-              setHasSentEstimative={setHasSentEstimative}
-              user={user}
-            />
-          </div>
-
-          <div className="mt-10 w-full">
-            <MessageList messages={messages} showResults={showResults} />
-          </div>
-
-          <Button
-            onClick={handleShowResults}
-            disabled={messages.length === 0}
-            className="mt-20"
-          >
-            Mostrar resultados
-          </Button>
-
-          <Button
-            className="mt-20"
-            onClick={handleClear}
-            variant={"destructive"}
-            disabled={messages?.length === 0}
-          >
-            Limpar
-          </Button>
+    <main className="mx-auto flex min-h-screen w-full max-w-3xl flex-col px-4 py-10 sm:px-6 md:py-16">
+      <header className="mb-10 flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-slate-100">
+            Estimativas
+          </h1>
+          <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
+            Vote em tamanho de tarefa no formato T-shirt em tempo real.
+          </p>
         </div>
+        <ModeToggle />
+      </header>
+
+      <section className="w-full">
+        <NameSelector user={user} submitUser={submitUser} />
+      </section>
+
+      {user && (
+        <section className="mt-6 flex w-full flex-col gap-6">
+          <EstimativeSelector
+            hasSentEstimative={hasSentEstimative}
+            setEstimative={setEstimative}
+            estimative={estimative}
+            setHasSentEstimative={setHasSentEstimative}
+            user={user}
+          />
+
+          <MessageList messages={messages} showResults={showResults} />
+
+          <div className="grid w-full gap-4 sm:grid-cols-2">
+            <Button
+              onClick={handleShowResults}
+              disabled={messages.length === 0 || isShowingResults || isClearing}
+              className="h-12 gap-2 rounded-xl border border-primary/40 bg-primary text-primary-foreground shadow-lg shadow-primary/25 transition-all hover:brightness-110 hover:shadow-primary/35 dark:border-primary/30"
+            >
+              <SendHorizontal className="h-4 w-4" />
+              {isShowingResults ? "Mostrando..." : "Mostrar resultados"}
+            </Button>
+
+            <Button
+              onClick={handleClear}
+              variant="destructive"
+              disabled={messages.length === 0 || isShowingResults || isClearing}
+              className="h-12 gap-2 rounded-xl border border-red-300/60 bg-red-50/70 text-red-700 hover:bg-red-100 dark:border-red-900/40 dark:bg-red-900/20 dark:text-red-300 dark:hover:bg-red-900/35"
+            >
+              <RefreshCw className="h-4 w-4" />
+              {isClearing ? "Limpando..." : "Limpar"}
+            </Button>
+          </div>
+        </section>
       )}
-    </div>
+    </main>
   );
 };
 

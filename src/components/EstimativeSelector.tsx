@@ -9,6 +9,9 @@ import {
 import { Button } from "./ui/button";
 import { User } from "./NameSelector";
 import { useToast } from "@/hooks/use-toast";
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import { useState } from "react";
+import { CheckCircle2, SendHorizontal } from "lucide-react";
 
 export const ESTIMATIVES = ["PP", "P", "M", "G", "GG"];
 
@@ -28,51 +31,86 @@ const EstimativeSelector = ({
   user,
 }: EstimativeSelectorProps) => {
   const { toast } = useToast();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const handleTestClick = async () => {
-    if (!estimative) return;
+    if (!estimative || isSubmitting) return;
 
-    let data = await fetch("/api/pusher/trigger", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ message: estimative, user: user }),
-    });
+    setIsSubmitting(true);
+    try {
+      const data = await fetch("/api/pusher/trigger", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ message: estimative, user: user }),
+      });
 
-    // let json = await data.json();
-    setHasSentEstimative(true);
+      if (!data.ok) {
+        throw new Error("Erro ao enviar estimativa");
+      }
 
-    toast({
-      title: "Sucesso!",
-      description: "Estimativa enviada!",
-    });
+      setHasSentEstimative(true);
+      toast({
+        title: "Sucesso!",
+        description: "Estimativa enviada!",
+      });
+    } catch {
+      toast({
+        title: "Erro",
+        description: "Nao foi possivel enviar sua estimativa.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
-    <div className="flex flex-col items-center w-full">
-      <div className="flex flex-col">
-        <Select value={estimative} onValueChange={(e) => setEstimative(e)}>
-          <SelectTrigger className="">
-            <SelectValue placeholder="Estimativa" />
+    <Card className="glass-card w-full rounded-2xl">
+      <CardHeader className="pb-3">
+        <CardTitle className="flex items-center gap-2 text-xl">
+          <CheckCircle2 className="h-5 w-5 text-primary" />
+          Escolha sua estimativa
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4 pt-0">
+        <label
+          htmlFor="estimative-select"
+          className="text-sm font-medium text-slate-600 dark:text-slate-400"
+        >
+          Estimativa
+        </label>
+        <Select value={estimative} onValueChange={(value) => setEstimative(value)}>
+          <SelectTrigger
+            id="estimative-select"
+            className="h-12 rounded-xl border-slate-200 bg-white/85 dark:border-slate-800 dark:bg-slate-900/80"
+          >
+            <SelectValue placeholder="Selecione uma estimativa" />
           </SelectTrigger>
           <SelectContent>
-            {ESTIMATIVES.map((e) => (
-              <SelectItem key={e} value={e}>
-                {e}
+            {ESTIMATIVES.map((value) => (
+              <SelectItem key={value} value={value}>
+                {value}
               </SelectItem>
             ))}
           </SelectContent>
         </Select>
 
         <Button
-          className="mt-10"
+          className="h-12 w-full gap-2 rounded-xl bg-primary font-semibold shadow-lg shadow-primary/20 hover:opacity-95"
           onClick={handleTestClick}
-          disabled={hasSentEstimative}
+          disabled={hasSentEstimative || !estimative || isSubmitting}
         >
-          {hasSentEstimative ? "Enviado" : "Enviar"}
+          <SendHorizontal className="h-4 w-4" />
+          {isSubmitting
+            ? "Enviando..."
+            : hasSentEstimative
+            ? "Enviado"
+            : "Enviar estimativa"}
         </Button>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 };
 

@@ -64,6 +64,12 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-slate-50 text-foreground transition-colors duration-300 dark:bg-slate-950;
+  }
+}
+
+@layer components {
+  .glass-card {
+    @apply border border-white/50 bg-white/75 shadow-sm backdrop-blur-sm dark:border-white/10 dark:bg-slate-900/45;
   }
 }
